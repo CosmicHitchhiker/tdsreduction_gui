@@ -275,7 +275,7 @@ class SelectPerformedCalibrations(QWidget):
 
         calibs_d = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
                     'X': 'geometry', 'W': 'wavelenghts', 'Y': 'distorsion',
-                    'S': 'sky', 'T': 'standart'}
+                    'S': 'sky', 'T': 'standart', 'U': 'summ'}
         self.calibs = calibs
         self.checkboxes = {k: QCheckBox(calibs_d[k]) for k in calibs}
         # for i in self.checkboxes.keys():
@@ -305,7 +305,7 @@ class MainWindow(QWidget):
         self.flat = ChooseCalibration(name='Flat', calibs='BX')
         self.disp = DispersionWidget(name='Wavelengths', calibs='BDCF')
         self.dist = ChooseCalibration(name='Y-correction', calibs='BDFCW')
-        self.calibs = SelectPerformedCalibrations(calibs='BDFCXWY')
+        self.calibs = SelectPerformedCalibrations(calibs='BDFCXWYU')
         self.frames = FitsOpenFile(text='Object frames')
         self.yaml_save = YamlOpenFile(text='Yaml file to save config')
         self.start_button = QPushButton('GO!!!')
@@ -340,14 +340,17 @@ class MainWindow(QWidget):
         res = dict()
         calibs_d = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
                     'X': 'corr', 'W': 'disp', 'Y': 'dist',
-                    'S': 'sky', 'T': 'standart'}
+                    'S': 'sky', 'T': 'standart', 'U': 'summ'}
+        # "Вложенные" списки калибровок
         res['bias'] = self.bias.return_dict()
         res['dark'] = self.dark.return_dict()
         res['corr'] = self.corr.return_dict()
         res['flat'] = self.flat.return_dict()
         res['disp'] = self.disp.return_dict()
         res['dist'] = self.dist.return_dict()
+        # "Да/Нет" калибровки
         res['cosmics'] = {'calibration': True}
+        res['summ'] = {'calibration': True}
 
         if self.frames.files:
             res['object'] = dict()
@@ -357,11 +360,14 @@ class MainWindow(QWidget):
                         if self.calibs.checkboxes[x].isChecked()]
             res['object']['additional'] = obj_cals
 
+        # Пути к дополнительным калибровкам для калибровок
         for c in res.keys():
             if 'additional' in res[c]:
                 res[c]['additional'] = {k: res[calibs_d[k]]['calibration']
                                         for k in res[c]['additional']}
+        # Космики и суммирование не самостоятельные калибровки
         del res['cosmics']
+        del res['summ']
 
         yaml_name = self.yaml_save.files
         if not yaml_name:
