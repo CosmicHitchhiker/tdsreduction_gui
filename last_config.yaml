@@ -1,0 +1,14 @@
+bias:
+  additional: {}
+  calibration: null
+  rawfiles: null
+corr:
+  calibration: null
+dark:
+  calibration: null
+disp:
+  calibration: null
+dist:
+  calibration: null
+flat:
+  calibration: null
