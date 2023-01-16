@@ -38,6 +38,18 @@ def htmlHeader(text, size=5):
     return res
 
 
+def getCalibDict(short=False):
+    if short:
+        res = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
+               'X': 'corr', 'W': 'disp', 'Y': 'dist',
+               'S': 'sky', 'T': 'standart', 'U': 'summ'}
+
+    else:
+        res = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
+               'X': 'geometry', 'W': 'wavelenghts', 'Y': 'distorsion',
+               'S': 'sky', 'T': 'standart', 'U': 'summ'}
+    return res
+
 class YamlOpenFile(QWidget):
 
     def __init__(self, parent=None, text=None, tt=None):
@@ -220,6 +232,9 @@ class ChooseCalibration(QWidget):
         if 'additional' in yml_dict:
             self.calibs.fill_boxes(''.join(yml_dict['additional'].keys()))
 
+    def fill_processed(self, processed_name):
+        self.processed_input.fill_string(processed_name)
+
     def return_calib(self):
         set_raw = self.if_raw.isChecked()
         set_processed = self.if_processed.isChecked()
@@ -273,9 +288,7 @@ class SelectPerformedCalibrations(QWidget):
     def __init__(self, parent=None, calibs=[]):
         super().__init__(parent)
 
-        calibs_d = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
-                    'X': 'geometry', 'W': 'wavelenghts', 'Y': 'distorsion',
-                    'S': 'sky', 'T': 'standart', 'U': 'summ'}
+        calibs_d = getCalibDict()
         self.calibs = calibs
         self.checkboxes = {k: QCheckBox(calibs_d[k]) for k in calibs}
         # for i in self.checkboxes.keys():
@@ -338,9 +351,7 @@ class MainWindow(QWidget):
     @Slot()
     def generate_yaml_config(self):
         res = dict()
-        calibs_d = {'B': 'bias', 'D': 'dark', 'F': 'flat', 'C': 'cosmics',
-                    'X': 'corr', 'W': 'disp', 'Y': 'dist',
-                    'S': 'sky', 'T': 'standart', 'U': 'summ'}
+        calibs_d = getCalibDict(short=True)
         # "Вложенные" списки калибровок
         res['bias'] = self.bias.return_dict()
         res['dark'] = self.dark.return_dict()
@@ -409,6 +420,20 @@ class MainWindow(QWidget):
             if 'additional' in config['object']:
                 cal = ''.join(config['object']['additional'].keys())
                 self.calibs.fill_boxes(cal)
+                for letter in cal:
+                    proc_name = config['object']['additional'][letter]
+                    if letter == 'B':
+                        self.bias.fill_processed(proc_name)
+                    if letter == 'D':
+                        self.dark.fill_processed(proc_name)
+                    if letter == 'X':
+                        self.corr.fill_processed(proc_name)
+                    if letter == 'F':
+                        self.flat.fill_processed(proc_name)
+                    if letter == 'W':
+                        self.disp.fill_processed(proc_name)
+                    if letter == 'Y':
+                        self.dist.fill_processed(proc_name)
 
     @Slot()
     def test_print(self):
