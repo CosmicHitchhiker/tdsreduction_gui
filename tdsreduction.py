@@ -50,6 +50,7 @@ def getCalibDict(short=False):
                'S': 'sky', 'T': 'standart', 'U': 'summ'}
     return res
 
+
 class YamlOpenFile(QWidget):
 
     def __init__(self, parent=None, text=None, tt=None):
@@ -77,8 +78,10 @@ class YamlOpenFile(QWidget):
 
     @Slot()
     def on_open_folder(self):
-        files_path = QFileDialog.getSaveFileName(self, "Yaml", "/home",
-            "yaml (*.yaml *.yml);;All (*)")[0]
+        files_path = QFileDialog.getSaveFileName(
+            self, "Yaml", "/home",
+            "yaml (*.yaml *.yml);;All (*)"
+        )[0]
         ext = files_path.split('.')
         if len(ext) < 2:
             files_path = files_path + '.yml'
@@ -131,17 +134,17 @@ class FitsOpenFile(QWidget):
                   + "Fits R (*R*.fits);;Fits B (*B*.fits)"
         if self.mode == 'n':
             files_path = QFileDialog.getOpenFileNames(self, "Fits", self.dir,
-                regexps)[0]
+                                                      regexps)[0]
             self.dir = "/".join(files_path[0].split('/')[:-1])
             self.changed_path.emit(self.dir)
         elif self.mode == 'o':
             files_path = QFileDialog.getOpenFileName(self, "Fits", self.dir,
-                regexps)[0]
+                                                     regexps)[0]
             self.dir = "/".join(files_path.split('/')[:-1])
             self.changed_path.emit(self.dir)
         elif self.mode == 'w':
             files_path = QFileDialog.getSaveFileName(self, "Fits", self.dir,
-                regexps)[0]
+                                                     regexps)[0]
             self.dir = "/".join(files_path.split('/')[:-1])
             self.changed_path.emit(self.dir)
             ext = files_path.split('.')
@@ -392,8 +395,9 @@ class MainWindow(QWidget):
 
     @Slot()
     def read_yaml_config(self):
-        file_path = QFileDialog.getOpenFileName(self, "Yaml", "/home/",
-                "YAML (*.yaml *.yml);;All (*)")[0]
+        file_path = QFileDialog.getOpenFileName(
+            self, "Yaml", "/home/",
+            "YAML (*.yaml *.yml);;All (*)")[0]
         file = open(file_path, 'r')
         config = yaml.load(file, Loader=yaml.SafeLoader)
         file.close()
