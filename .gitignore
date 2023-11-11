@@ -8,3 +8,5 @@ regularexpression.py
 regularexpressiondialog.py
 
 __pycache__/
+
+last_config.yaml
